@@ -692,6 +692,14 @@
       display: block; min-width: 0; width: 100%; height: auto;
       border: 1px solid var(--v24-gold); border-radius: 3px;
     }
+    /* V26: compact only personal-result heroes to bring the share button into view. */
+    .result-card:has(> .share-actions) > .result-hero { padding: 8px 0 16px; }
+    .result-card:has(> .share-actions) > .result-hero .result-kicker { margin: 4px 16px 8px; }
+    .result-card:has(> .share-actions) > .result-hero .portrait-frame { width: min(70%, 300px); margin-inline: auto; }
+    .result-card:has(> .share-actions) > .result-hero .result-image { width: 100%; height: auto; }
+    .result-card:has(> .share-actions) > .result-hero h1 { margin: 8px 14px 0; }
+    .result-card:has(> .share-actions) > .result-hero .catch { margin: 12px 24px 0; }
+    .result-card > .share-actions { padding-top: 8px; }
   </style>
 </head>
 <body>
