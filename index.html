@@ -668,6 +668,24 @@
     .axes-section .axis-labels .is-loser .axis-pole { font-weight: 400; }
     .axes-section .axis-labels .is-loser strong { font-size: 20px; color: var(--v23-muted); }
     @media (max-width: 400px) { .axes-section > h2 { font-size: 27px; } .axes-section .axis-labels .is-winner strong { font-size: 29px; } }
+    /* V24: X intent first, with a quieter image-share option below the hero. */
+    .share-actions {
+      --v24-gold: #b08d3f; --v24-ink: #2b2440;
+      display: grid; gap: 12px; width: min(calc(100% - 28px), 640px);
+      margin-inline: auto; padding: 12px 2px 24px;
+    }
+    .share-actions .button { font-family: var(--mincho); }
+    .share-actions > .button.primary {
+      border: 2px solid var(--v24-gold); background: var(--v24-ink); color: var(--sheet);
+      font-size: 18px; box-shadow: 0 4px 12px rgba(176,141,63,.18);
+    }
+    .share-actions > .share-sub {
+      min-height: 48px; padding: 10px 16px; font-size: 15px; font-weight: 400;
+      border: 1px solid var(--v24-gold); background: var(--sheet); color: var(--v24-ink); box-shadow: none;
+    }
+    /* Keep the existing chapter backgrounds when the new block shifts child indices. */
+    .result-card > .share-actions ~ .section:not(.persona):nth-child(even) { background: var(--paper); }
+    .result-card > .share-actions ~ .section:not(.persona):nth-child(odd) { background: var(--sheet); }
   </style>
 </head>
 <body>
@@ -1110,6 +1128,7 @@
       return `<article style="--accent:${type.color};--hero-glow:${type.color}30">
         <div class="result-card"><span class="frame-corners" aria-hidden="true"><i></i><i></i><i></i><i></i></span><div class="result-band"></div>
           <header class="result-hero"><span class="reveal-dust" aria-hidden="true"><i class="star" style="--x:8%;--y:12%"></i><i class="star" style="--x:21%;--y:3%"></i><i class="star" style="--x:34%;--y:26%"></i><i class="star" style="--x:47%;--y:7%"></i><i class="star" style="--x:61%;--y:19%"></i><i class="star" style="--x:75%;--y:4%"></i><i class="star" style="--x:90%;--y:24%"></i><i class="star" style="--x:15%;--y:42%"></i><i class="star" style="--x:55%;--y:38%"></i><i class="star" style="--x:84%;--y:46%"></i></span><p class="result-kicker">${personal ? 'あなたはこのタイプ！' : 'タイプ詳細'}</p><div class="portrait-frame"><img class="result-image illustration" src="images/${code}.png" alt="${type.name}" width="1024" height="1024" fetchpriority="high"><span class="portrait-stars" aria-hidden="true"><i class="star"></i><i class="star"></i></span></div><h1 class="illustration-caption" tabindex="-1">${type.name}</h1><p class="catch">${type.catch}</p></header>
+          ${personal ? `<div class="share-actions"><a class="button primary" href="${intentHref}" target="_blank" rel="noopener">Xで投稿する <span aria-hidden="true">↗</span></a><button class="button share-sub" data-action="share" data-code="${code}">結果を画像つきでシェアする <span aria-hidden="true">↗</span></button><p id="share-status" class="status" role="status" aria-live="polite"></p><div class="share-fallback" id="share-fallback" hidden><button class="button" data-action="share-download" data-code="${code}">画像を保存する</button></div></div>` : ''}
           <section class="section persona" style="--chapter:0"><h2>${type.title}</h2><p>${type.persona}</p><h3 class="result-family">${personal ? 'あなたは' : ''}${family.name}の家系</h3>${familyMapHTML(code, personal, 4)}<p class="family-description">${family.description}</p><p class="result-motif"><span aria-hidden="true">${type.emoji}</span> ${type.motif}<span class="code">${code}</span></p></section>
           <section class="section axes-section" style="--chapter:1"><h2>${personal ? 'あなたの4つの診断軸' : 'このタイプの4つの診断軸'}</h2>${personal ? radarHTML(code) : ''}${axesHTML(code, personal)}<details class="notes"><summary>くわしく見る（診断軸）</summary><p class="section-note">${personal ? '各軸5問の回答の点数の割合です。性格の強さや能力の点数ではありません。' : 'タイプの方向を示しています。あなたの回答割合ではありません。'}</p>${personal && !result.closeAxes.length ? '<p class="section-note">今回は「揺れる軸」はありませんでした。</p>' : ''}</details></section>
           <section class="section" style="--chapter:2"><h2>つよさ</h2><ul class="trait-list">${type.strengths.map(text => `<li>${text}</li>`).join('')}</ul></section>
@@ -1119,7 +1138,7 @@
           ${near}
           <details class="section provenance" style="--chapter:${near ? 7 : 6}"><summary>くわしく見る（出典・根拠）</summary><h2>なぜ、このキャラ？</h2><p class="section-note">このキャラの元になった場面と、4つの軸への当てはめ方です。</p><dl class="evidence">${type.evidence.map((phrase, index) => `<div class="evidence-row"><dt>${code[index]}</dt><dd><strong>${AXES[index].labels[AXES[index].poles.indexOf(code[index])]}</strong>${phrase}</dd></div>`).join('')}</dl><p class="source-note">${type.source}<br>場面の読み方は、この診断のための解釈です。</p></details>
         </div>
-        <div class="actions">${personal ? `<button class="button primary" data-action="share" data-code="${code}">結果を画像つきでシェアする <span aria-hidden="true">↗</span></button><p id="share-status" class="status" role="status" aria-live="polite"></p><div class="share-fallback" id="share-fallback" hidden><button class="button" data-action="share-download" data-code="${code}">画像を保存する</button><a class="button" href="${intentHref}" target="_blank" rel="noopener">Xで投稿する <span aria-hidden="true">↗</span></a></div>` : ''}<button class="${personal ? 'button' : 'button primary'}" data-action="copy" data-code="${code}">${personal ? '結果をコピーする' : 'このタイプをコピーする'} <span aria-hidden="true">↗</span></button><p id="copy-status" class="status" role="status" aria-live="polite"></p><div class="copy-fallback" id="copy-fallback" hidden><label for="copy-text">下の文を選択してコピーしてください。</label><textarea id="copy-text" readonly></textarea></div>
+        <div class="actions"><button class="${personal ? 'button' : 'button primary'}" data-action="copy" data-code="${code}">${personal ? '結果をコピーする' : 'このタイプをコピーする'} <span aria-hidden="true">↗</span></button><p id="copy-status" class="status" role="status" aria-live="polite"></p><div class="copy-fallback" id="copy-fallback" hidden><label for="copy-text">下の文を選択してコピーしてください。</label><textarea id="copy-text" readonly></textarea></div>
         ${!personal && result ? '<a class="button" href="#result">自分の診断結果に戻る</a>' : ''}
         <button class="button" data-action="start">${personal || result ? 'もう一度、診断する' : '自分のタイプを診断する'}</button><a class="button types-link" href="#types"><span class="cta-faces cta-faces-sm" aria-hidden="true"><img src="images/QRSP.png" alt="" width="1024" height="1024" loading="lazy" decoding="async"><img src="images/QWHF.png" alt="" width="1024" height="1024" loading="lazy" decoding="async"><img src="images/CWHF.png" alt="" width="1024" height="1024" loading="lazy" decoding="async"></span>16タイプの一覧へ</a></div>
         <div class="center"><a class="text-link" href="#home">トップに戻る</a></div>
@@ -1272,12 +1291,18 @@
       const showFallback = () => {
         if (!status.isConnected) return;
         fallback.hidden = false;
-        status.textContent = 'この環境では画像つき共有が使えないため、画像の保存とX投稿のボタンを出しました。';
+        status.textContent = 'この環境では画像つき共有が使えないため、画像の保存ボタンを出しました。文章だけなら『Xで投稿する』をお使いください。';
       };
       button.disabled = true;
       status.textContent = '';
       try {
-        const blob = await generateShareBlob(code);
+        let blob;
+        try {
+          blob = await generateShareBlob(code);
+        } catch (_) {
+          if (status.isConnected) status.textContent = '画像を作れませんでした。文章だけでも投稿できます。『Xで投稿する』をお使いください。';
+          return;
+        }
         if (!button.isConnected) return;
         const file = new File([blob], `fairytale-${code}.png`, { type: 'image/png' });
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
