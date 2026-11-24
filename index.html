@@ -1014,7 +1014,7 @@
       return `<section class="center">
         <div class="cover"><span class="frame-shine" aria-hidden="true"></span><span class="frame-corners" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
           <p class="eyebrow">4択で答えるタイプ診断</p>
-          <h1 class="logo-title" tabindex="-1"><img class="site-logo" src="images/v17/logo-a-book-crown.png" alt="童話キャラ16タイプ診断" width="1400" height="466"></h1>
+          <h1 class="logo-title" tabindex="-1"><img class="site-logo" src="images/v21/logo-book.png" alt="童話キャラ16タイプ診断" width="2736" height="912"></h1>
           <div class="art-aura"><img class="cover-art" src="images/hero.png" alt="アリス、三匹のこぶたの末っ子、ピーター・パンたちが集う童話の世界" width="1536" height="1024" fetchpriority="high"></div>
           <p class="cover-intro">20問の回答から、あなたの選び方に近い<br>童話キャラを16タイプから診断します。</p>
           <div class="cover-meta"><span>全20問・4択</span><span>回答の保存なし</span></div>
@@ -1194,7 +1194,7 @@
       const type = TYPES[code];
       const [portrait, logo] = await Promise.all([
         loadShareImage(`images/${code}.png`),
-        loadShareImage('images/v17/logo-a-book-crown.png')
+        loadShareImage('images/v21/logo-book.png')
       ]);
       const canvas = document.createElement('canvas');
       canvas.width = 1200;
