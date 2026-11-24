@@ -652,6 +652,22 @@
     @media (prefers-reduced-motion: reduce) {
       .v16-part { animation: none; }
     }
+    /* V23: axes chapter headings — storybook chapter titles, gold + deep ink. */
+    .axes-section { --v23-gold: #b08d3f; --v23-gold-soft: rgba(176,141,63,.35); --v23-ink: #2b2440; --v23-muted: #6f6a85; }
+    .axes-section > h2 { font-family: var(--mincho); font-size: 30px; line-height: 1.5; letter-spacing: .06em; color: var(--v23-ink); text-align: center; margin-bottom: 10px; padding-bottom: 14px; border-bottom: 3px double var(--v23-gold); }
+    .axes-section .diagram-title { font-family: var(--mincho); font-size: 22px; letter-spacing: .05em; color: var(--v23-ink); padding-bottom: 8px; border-bottom: 1px solid var(--v23-gold-soft); }
+    .axes-section .radar-pole strong, .axes-section .radar-legend strong { font-size: 19px; color: var(--v23-ink); }
+    .axes-section .axis { margin-top: 40px; padding-top: 28px; border-top: 1px solid var(--v23-gold-soft); }
+    .axes-section .axis:first-of-type { border-top: 0; }
+    .axes-section .axis-top { font-family: var(--mincho); font-size: 20px; letter-spacing: .03em; color: var(--v23-ink); }
+    .axes-section .axis-num { color: var(--v23-gold); font-size: 24px; margin-right: 2px; }
+    .axes-section .close-badge { background: rgba(176,141,63,.12); border: 1px solid var(--v23-gold); border-radius: 3px; color: var(--v23-ink); font-family: var(--mincho); padding: 4px 10px; }
+    .axes-section .axis-labels .is-winner .axis-pole { color: var(--v23-ink); font-size: 17px; }
+    .axes-section .axis-labels .is-winner strong { font-size: 32px; font-family: var(--mincho); color: var(--family-deep); line-height: 1.3; }
+    .axes-section .axis-labels .is-loser { color: var(--v23-muted); }
+    .axes-section .axis-labels .is-loser .axis-pole { font-weight: 400; }
+    .axes-section .axis-labels .is-loser strong { font-size: 20px; color: var(--v23-muted); }
+    @media (max-width: 400px) { .axes-section > h2 { font-size: 27px; } .axes-section .axis-labels .is-winner strong { font-size: 29px; } }
   </style>
 </head>
 <body>
@@ -1072,8 +1088,8 @@
         const tie = personal && result.tieAxes.includes(index);
         const winner = axis.poles.indexOf(code[index]);
         const note = close ? (tie ? AXIS_NOTES.tie(...axis.labels) : AXIS_NOTES.close(axis.labels[winner], axis.labels[1 - winner])) : '';
-        return `<div class="axis"><div class="axis-top"><span>${index + 1}. ${axis.name}</span>${close ? `<span class="close-badge">${tie ? '同点' : '揺れる軸'} · ${scores[0]}対${scores[1]}点</span>` : ''}</div>
-          <div class="axis-labels">${axis.labels.map((label, pole) => `<span><span class="axis-pole"><span class="axis-symbol" aria-hidden="true">${symbols[index][pole]}</span>${axis.poles[pole]} · ${label}</span><strong>${personal ? `${pole ? 100 - percent : percent}%` : (pole === winner ? 'このタイプの向き' : '—')}</strong></span>`).join('')}</div>
+        return `<div class="axis"><div class="axis-top"><span><span class="axis-num">${index + 1}</span>. ${axis.name}</span>${close ? `<span class="close-badge">${tie ? '同点' : '揺れる軸'} · ${scores[0]}対${scores[1]}点</span>` : ''}</div>
+          <div class="axis-labels">${axis.labels.map((label, pole) => `<span class="${personal && percent === 50 ? '' : (pole === (personal ? (percent >= 50 ? 0 : 1) : winner) ? 'is-winner' : 'is-loser')}"><span class="axis-pole"><span class="axis-symbol" aria-hidden="true">${symbols[index][pole]}</span>${axis.poles[pole]} · ${label}</span><strong>${personal ? `${pole ? 100 - percent : percent}%` : (pole === winner ? 'このタイプの向き' : '—')}</strong></span>`).join('')}</div>
           <div class="axis-track" role="img" aria-label="${personal ? `${axis.labels[0]} ${percent}%、${axis.labels[1]} ${100 - percent}%${close ? '。帯は揺れる軸の判定範囲、3分の1から3分の2。' : ''}` : `このタイプの方向：${axis.labels[winner]}`}" style="--value:${percent}%"><span class="axis-fill" style="width:${percent}%"></span><svg class="gauge-ticks" viewBox="0 0 100 28" preserveAspectRatio="none" aria-hidden="true"><path d="M0 18V28 M25 18V28 M50 0V28 M75 18V28 M100 18V28" fill="none" stroke="currentColor" stroke-width="1" vector-effect="non-scaling-stroke"/></svg>${close ? '<span class="range-band" aria-hidden="true"></span>' : ''}<span class="gauge-needle" aria-hidden="true"></span></div>
           ${personal ? `<div class="gauge-scale" aria-hidden="true"><span>0</span><span>25</span><span>50</span><span>75</span><span>100%</span></div><p class="gauge-caption">${axis.poles[0]}の得点割合${close ? '<br><span class="range-key" aria-hidden="true"></span>帯：揺れる軸の範囲（33〜67%）' : ''}</p>` : '<p class="gauge-caption">タイプの方向（回答割合ではありません）</p>'}
           <div class="axis-descriptions"><p class="axis-description">${axis.descriptions[0]}</p><p class="axis-description">${axis.descriptions[1]}</p></div>${close ? `<details class="notes"><summary>くわしく見る（軸の読み方）</summary><p class="axis-note">${note}</p><p class="axis-note">帯は、両極の得点がそれぞれ全体の3分の1以上になる判定範囲です。33〜67%は丸めた表示で、気持ちの変動を測った幅ではありません。</p></details>` : ''}</div>`;
@@ -1095,7 +1111,7 @@
         <div class="result-card"><span class="frame-corners" aria-hidden="true"><i></i><i></i><i></i><i></i></span><div class="result-band"></div>
           <header class="result-hero"><span class="reveal-dust" aria-hidden="true"><i class="star" style="--x:8%;--y:12%"></i><i class="star" style="--x:21%;--y:3%"></i><i class="star" style="--x:34%;--y:26%"></i><i class="star" style="--x:47%;--y:7%"></i><i class="star" style="--x:61%;--y:19%"></i><i class="star" style="--x:75%;--y:4%"></i><i class="star" style="--x:90%;--y:24%"></i><i class="star" style="--x:15%;--y:42%"></i><i class="star" style="--x:55%;--y:38%"></i><i class="star" style="--x:84%;--y:46%"></i></span><p class="result-kicker">${personal ? 'あなたはこのタイプ！' : 'タイプ詳細'}</p><div class="portrait-frame"><img class="result-image illustration" src="images/${code}.png" alt="${type.name}" width="1024" height="1024" fetchpriority="high"><span class="portrait-stars" aria-hidden="true"><i class="star"></i><i class="star"></i></span></div><h1 class="illustration-caption" tabindex="-1">${type.name}</h1><p class="catch">${type.catch}</p></header>
           <section class="section persona" style="--chapter:0"><h2>${type.title}</h2><p>${type.persona}</p><h3 class="result-family">${personal ? 'あなたは' : ''}${family.name}の家系</h3>${familyMapHTML(code, personal, 4)}<p class="family-description">${family.description}</p><p class="result-motif"><span aria-hidden="true">${type.emoji}</span> ${type.motif}<span class="code">${code}</span></p></section>
-          <section class="section" style="--chapter:1"><h2>${personal ? 'あなたの4つの診断軸' : 'このタイプの4つの診断軸'}</h2>${personal ? radarHTML(code) : ''}${axesHTML(code, personal)}<details class="notes"><summary>くわしく見る（診断軸）</summary><p class="section-note">${personal ? '各軸5問の回答の点数の割合です。性格の強さや能力の点数ではありません。' : 'タイプの方向を示しています。あなたの回答割合ではありません。'}</p>${personal && !result.closeAxes.length ? '<p class="section-note">今回は「揺れる軸」はありませんでした。</p>' : ''}</details></section>
+          <section class="section axes-section" style="--chapter:1"><h2>${personal ? 'あなたの4つの診断軸' : 'このタイプの4つの診断軸'}</h2>${personal ? radarHTML(code) : ''}${axesHTML(code, personal)}<details class="notes"><summary>くわしく見る（診断軸）</summary><p class="section-note">${personal ? '各軸5問の回答の点数の割合です。性格の強さや能力の点数ではありません。' : 'タイプの方向を示しています。あなたの回答割合ではありません。'}</p>${personal && !result.closeAxes.length ? '<p class="section-note">今回は「揺れる軸」はありませんでした。</p>' : ''}</details></section>
           <section class="section" style="--chapter:2"><h2>つよさ</h2><ul class="trait-list">${type.strengths.map(text => `<li>${text}</li>`).join('')}</ul></section>
           <section class="section stumbles" style="--chapter:3"><h2>気をつけたいところ</h2><ul class="trait-list">${type.stumbles.map(text => `<li>${text}</li>`).join('')}</ul></section>
           <section class="section" style="--chapter:4"><h2>恋愛の傾向</h2><p class="love-text">${type.love}</p><h3 class="love-pitfalls">恋愛で気をつけたいところ</h3><ul class="trait-list">${type.lovePitfalls.map(text => `<li>${text}</li>`).join('')}</ul></section>
@@ -1166,7 +1182,7 @@
     }
     const SHARE_SITE_URL = 'https://sakiyayoi.github.io/fairytale-type16/?v=2';
     const SHARE_HASHTAGS = '#童話キャラ16タイプ診断 #性格診断 #タイプ診断';
-    function shareTextFor(code) { return `童話キャラ16タイプ診断で、私は『${TYPES[code].name}』でした。 ${SHARE_HASHTAGS}`; }
+    function shareTextFor(code) { return `童話キャラ16タイプ診断で、私は『${TYPES[code].name}』でした。 ${SHARE_SITE_URL} ${SHARE_HASHTAGS}`; }
     function shareIntentHref(code) {
       return `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareTextFor(code))}&url=${encodeURIComponent(SHARE_SITE_URL)}`;
     }
@@ -1265,8 +1281,16 @@
         if (!button.isConnected) return;
         const file = new File([blob], `fairytale-${code}.png`, { type: 'image/png' });
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          await navigator.share({ files: [file], title: '童話キャラ16タイプ診断', text: shareTextFor(code), url: SHARE_SITE_URL });
+          await navigator.share({ files: [file], text: shareTextFor(code) });
           if (status.isConnected) status.textContent = '共有シートを開きました。';
+        } else if (navigator.share) {
+          try {
+            await navigator.share({ text: shareTextFor(code) });
+            if (status.isConnected) status.textContent = '共有シートを開きました。';
+          } catch (textError) {
+            if (textError.name === 'AbortError') { if (status.isConnected) status.textContent = ''; }
+            else showFallback();
+          }
         } else showFallback();
       } catch (error) {
         if (error.name === 'AbortError') {
