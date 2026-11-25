@@ -1213,11 +1213,11 @@
         }
       }, 520);
     }
-    const SHARE_SITE_URL = 'https://sakiyayoi.github.io/fairytale-type16/?v=2';
+    function shareUrlFor(code) { return `https://sakiyayoi.github.io/fairytale-type16/r/${code.toLowerCase()}.html`; }
     const SHARE_HASHTAGS = '#童話キャラ16タイプ診断 #性格診断 #タイプ診断';
-    function shareTextFor(code) { return `童話キャラ16タイプ診断で、私は『${TYPES[code].name}』でした。 ${SHARE_SITE_URL} ${SHARE_HASHTAGS}`; }
+    function shareTextFor(code) { return `童話キャラ16タイプ診断で、私は『${TYPES[code].name}』でした。 ${shareUrlFor(code)} ${SHARE_HASHTAGS}`; }
     function shareIntentHref(code) {
-      return `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareTextFor(code))}&url=${encodeURIComponent(SHARE_SITE_URL)}`;
+      return `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareTextFor(code))}&url=${encodeURIComponent(shareUrlFor(code))}`;
     }
     function loadShareImage(src) {
       return new Promise((resolve, reject) => {
