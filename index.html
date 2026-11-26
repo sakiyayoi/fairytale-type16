@@ -1142,7 +1142,7 @@
       return `<article style="--accent:${type.color};--hero-glow:${type.color}30">
         <div class="result-card"><span class="frame-corners" aria-hidden="true"><i></i><i></i><i></i><i></i></span><div class="result-band"></div>
           <header class="result-hero"><span class="reveal-dust" aria-hidden="true"><i class="star" style="--x:8%;--y:12%"></i><i class="star" style="--x:21%;--y:3%"></i><i class="star" style="--x:34%;--y:26%"></i><i class="star" style="--x:47%;--y:7%"></i><i class="star" style="--x:61%;--y:19%"></i><i class="star" style="--x:75%;--y:4%"></i><i class="star" style="--x:90%;--y:24%"></i><i class="star" style="--x:15%;--y:42%"></i><i class="star" style="--x:55%;--y:38%"></i><i class="star" style="--x:84%;--y:46%"></i></span><p class="result-kicker">${personal ? 'あなたはこのタイプ！' : 'タイプ詳細'}</p><div class="portrait-frame"><img class="result-image illustration" src="images/${code}.png" alt="${type.name}" width="1024" height="1024" fetchpriority="high"><span class="portrait-stars" aria-hidden="true"><i class="star"></i><i class="star"></i></span></div><h1 class="illustration-caption" tabindex="-1">${type.name}</h1><p class="catch">${type.catch}</p></header>
-          ${personal ? `<div class="share-actions"><button class="button primary" data-action="share" data-code="${code}">結果画像つきでシェアする <span aria-hidden="true">↗</span></button><a class="button share-sub" href="${intentHref}" target="_blank" rel="noopener">Xで投稿する <span aria-hidden="true">↗</span></a><p id="share-status" class="status" role="status" aria-live="polite"></p><div class="share-fallback" id="share-fallback" hidden><img class="share-fallback-image" id="share-fallback-image" alt="診断結果のシェア画像" hidden><button class="button" data-action="share-download" data-code="${code}">画像を保存する</button></div></div>` : ''}
+          ${personal ? `<div class="share-actions"><button class="button primary" data-action="share" data-code="${code}">結果カードでシェアする <span aria-hidden="true">↗</span></button><a class="button share-sub" href="${intentHref}" target="_blank" rel="noopener">Xで投稿する <span aria-hidden="true">↗</span></a><p id="share-status" class="status" role="status" aria-live="polite"></p><div class="share-fallback" id="share-fallback" hidden><img class="share-fallback-image" id="share-fallback-image" alt="診断結果の結果カード" hidden><button class="button" data-action="share-download" data-code="${code}">画像を保存する</button></div></div>` : ''}
           <section class="section persona" style="--chapter:0"><h2>${type.title}</h2><p>${type.persona}</p><h3 class="result-family">${personal ? 'あなたは' : ''}${family.name}の家系</h3>${familyMapHTML(code, personal, 4)}<p class="family-description">${family.description}</p><p class="result-motif"><span aria-hidden="true">${type.emoji}</span> ${type.motif}<span class="code">${code}</span></p></section>
           <section class="section axes-section" style="--chapter:1"><h2>${personal ? 'あなたの4つの診断軸' : 'このタイプの4つの診断軸'}</h2>${personal ? radarHTML(code) : ''}${axesHTML(code, personal)}<details class="notes"><summary>くわしく見る（診断軸）</summary><p class="section-note">${personal ? '各軸5問の回答の点数の割合です。性格の強さや能力の点数ではありません。' : 'タイプの方向を示しています。あなたの回答割合ではありません。'}</p>${personal && !result.closeAxes.length ? '<p class="section-note">今回は「揺れる軸」はありませんでした。</p>' : ''}</details></section>
           <section class="section" style="--chapter:2"><h2>つよさ</h2><ul class="trait-list">${type.strengths.map(text => `<li>${text}</li>`).join('')}</ul></section>
@@ -1299,6 +1299,81 @@
         }, 'image/png');
       });
     }
+    async function generateResultCardBlob(code) {
+      const type = TYPES[code];
+      const family = FAMILIES[code.slice(0, 2)];
+      const percentages = AXES.map((axis, index) => {
+        const scores = result?.code === code ? result.scores[index] : (code[index] === axis.poles[0] ? [10, 0] : [0, 10]);
+        return Math.round(100 * scores[0] / (scores[0] + scores[1]));
+      });
+      const [portrait, logo] = await Promise.all([
+        loadShareImage(`images/${code}.png`),
+        loadShareImage('images/v21/logo-book.png')
+      ]);
+      const canvas = document.createElement('canvas');
+      canvas.width = 1080;
+      canvas.height = 1080;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('画像を描画できませんでした。');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, 1080, 1080);
+      ctx.fillStyle = family.color;
+      ctx.fillRect(0, 0, 1080, 14);
+      ctx.strokeStyle = family.color;
+      ctx.lineWidth = 4;
+      ctx.strokeRect(18, 18, 1044, 1044);
+      ctx.lineWidth = 1;
+      ctx.strokeRect(28, 28, 1024, 1024);
+      ctx.drawImage(logo, 375, 38, 330, 110);
+      ctx.drawImage(portrait, 350, 190, 380, 380);
+      ctx.strokeStyle = type.color;
+      ctx.lineWidth = 3;
+      ctx.strokeRect(350, 190, 380, 380);
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'alphabetic';
+      ctx.fillStyle = '#302b49';
+      ctx.font = '24px "Hiragino Sans", "Hiragino Kaku Gothic ProN", sans-serif';
+      ctx.fillText(`${family.name}の家系 ・ ${type.emoji} ${type.motif}（${code}）`, 540, 610, 900);
+      ctx.font = '700 56px "Hiragino Mincho ProN", "Hiragino Mincho Pro", "YuMincho", "Yu Mincho", serif';
+      ctx.fillText(type.name, 540, 680, 900);
+      ctx.fillStyle = type.color;
+      ctx.fillRect(480, 706, 120, 6);
+      ctx.font = '29px "Hiragino Sans", "Hiragino Kaku Gothic ProN", sans-serif';
+      ctx.fillStyle = '#302b49';
+      const catchLines = wrapShareLines(ctx, type.catch, 880);
+      if (catchLines.length > 3) {
+        catchLines.length = 3;
+        const lastLine = [...catchLines[2]];
+        while (lastLine.length && ctx.measureText(lastLine.join('') + '…').width > 880) lastLine.pop();
+        catchLines[2] = lastLine.join('') + '…';
+      }
+      catchLines.forEach((line, index) => ctx.fillText(line, 540, 754 + index * 37, 880));
+      ctx.textAlign = 'left';
+      AXES.forEach((axis, index) => {
+        const y = 870 + index * 38;
+        const percent0 = percentages[index];
+        ctx.fillStyle = '#302b49';
+        ctx.font = '22px "Hiragino Sans", "Hiragino Kaku Gothic ProN", sans-serif';
+        ctx.fillText(axis.name, 100, y);
+        ctx.fillStyle = '#eeeeee';
+        ctx.fillRect(290, y - 14, 430, 12);
+        ctx.fillStyle = family.color;
+        ctx.fillRect(290, y - 14, 430 * percent0 / 100, 12);
+        ctx.fillStyle = '#302b49';
+        ctx.font = '24px "Hiragino Sans", "Hiragino Kaku Gothic ProN", sans-serif';
+        ctx.fillText(`${axis.poles[0]} ${percent0}% / ${axis.poles[1]} ${100 - percent0}%`, 750, y);
+      });
+      ctx.textAlign = 'center';
+      ctx.font = '700 25px "Hiragino Sans", "Hiragino Kaku Gothic ProN", sans-serif';
+      ctx.fillStyle = type.color;
+      ctx.fillText('sakiyayoi.github.io/fairytale-type16/', 540, 1030);
+      return new Promise((resolve, reject) => {
+        canvas.toBlob(blob => {
+          if (blob) resolve(blob);
+          else reject(new Error('画像を作れませんでした。'));
+        }, 'image/png');
+      });
+    }
     async function shareResult(code, button) {
       const status = document.getElementById('share-status');
       const fallback = document.getElementById('share-fallback');
@@ -1310,20 +1385,20 @@
         if (previousURL) URL.revokeObjectURL(previousURL);
         image.src = URL.createObjectURL(blob);
         image.hidden = false;
-        status.textContent = 'この環境では画像つき共有が使えません。結果画像を表示しました。画像を保存して、『Xで投稿する』から投稿に添付できます。';
+        status.textContent = 'この環境ではカードつき共有が使えません。結果カードを表示しました。画像を保存して、『Xで投稿する』から投稿に添付できます。';
       };
       button.disabled = true;
       status.textContent = '';
       let blob;
       try {
         try {
-          blob = await generateShareBlob(code);
+          blob = await generateResultCardBlob(code);
         } catch (_) {
           if (status.isConnected) status.textContent = '画像を作れませんでした。文章だけでも投稿できます。『Xで投稿する』をお使いください。';
           return;
         }
         if (!button.isConnected) return;
-        const file = new File([blob], `fairytale-${code}.png`, { type: 'image/png' });
+        const file = new File([blob], `fairytale-${code}-card.png`, { type: 'image/png' });
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
           await navigator.share({ files: [file], text: shareTextFor(code) });
           if (status.isConnected) status.textContent = '共有シートを開きました。';
@@ -1351,12 +1426,12 @@
       let objectURL;
       let link;
       try {
-        const blob = await generateShareBlob(code);
+        const blob = await generateResultCardBlob(code);
         if (!button.isConnected) return;
         objectURL = URL.createObjectURL(blob);
         link = document.createElement('a');
         link.href = objectURL;
-        link.download = `fairytale-${code}.png`;
+        link.download = `fairytale-${code}-card.png`;
         document.body.appendChild(link);
         link.click();
         if (status.isConnected) status.textContent = '画像を保存しました。Xの投稿に添付してください。';
