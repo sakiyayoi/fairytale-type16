@@ -736,10 +736,10 @@
     'use strict';
 
     const AXES = [
-      { name: "心が動き出すとき", poles: ['Q', 'C'], labels: ['自分から動き出す', 'きっかけに応じる'], descriptions: ["考えるより先に体が動き、自分から新しい一歩を踏み出すと心が弾む。", "周囲の声や表情を敏感に受け止め、相手の求めることに応えると心が満たされる。"] },
-      { name: "心が惹かれるもの", poles: ['R', 'W'], labels: ['手がかりから考える', '可能性から考える'], descriptions: ["目に見える変化や積み重ねた成果を確かめることで、迷いが消えて安心できる。", "まだ知らない可能性や新しい発想に触れると、想像が広がり胸が高鳴る。"] },
-      { name: "心が定まるとき", poles: ['S', 'H'], labels: ['筋道を優先する', '気持ちを優先する'], descriptions: ["物事の理由や筋道がつながると、納得して自分の答えを選べる。", "誰かと本音を分かち合い、互いの気持ちが通じたときに心が落ち着く。"] },
-      { name: "心の歩き方", poles: ['P', 'F'], labels: ['見通しを立てる', '流れに合わせる'], descriptions: ["目指す場所とそこへ進む順番が見えると、不安がほどけて安心できる。", "決まりに縛られず、その場の発想で自由に動けると自分らしくいられる。"] }
+      { name: "行動を始めるきっかけ", poles: ['Q', 'C'], labels: ['自分から動き出す', 'きっかけに応じる'], descriptions: ["考えるより先に体が動き、自分から新しい一歩を踏み出すと心が弾む。", "周囲の声や表情を敏感に受け止め、相手の求めることに応えると心が満たされる。"] },
+      { name: "情報の捉え方と考え方", poles: ['R', 'W'], labels: ['手がかりから考える', '可能性から考える'], descriptions: ["目に見える変化や積み重ねた成果を確かめることで、迷いが消えて安心できる。", "まだ知らない可能性や新しい発想に触れると、想像が広がり胸が高鳴る。"] },
+      { name: "判断するときに重視すること", poles: ['S', 'H'], labels: ['筋道を優先する', '気持ちを優先する'], descriptions: ["物事の理由や筋道がつながると、納得して自分の答えを選べる。", "誰かと本音を分かち合い、互いの気持ちが通じたときに心が落ち着く。"] },
+      { name: "物事の進め方", poles: ['P', 'F'], labels: ['見通しを立てる', '流れに合わせる'], descriptions: ["目指す場所とそこへ進む順番が見えると、不安がほどけて安心できる。", "決まりに縛られず、その場の発想で自由に動けると自分らしくいられる。"] }
     ];
 
     // SPEC_V3.md の人物・原典定義を維持し、表示文は RESULT_TEXT_V9.md から転記。
@@ -1302,10 +1302,6 @@
     async function generateResultCardBlob(code) {
       const type = TYPES[code];
       const family = FAMILIES[code.slice(0, 2)];
-      const percentages = AXES.map((axis, index) => {
-        const scores = result?.code === code ? result.scores[index] : (code[index] === axis.poles[0] ? [10, 0] : [0, 10]);
-        return Math.round(100 * scores[0] / (scores[0] + scores[1]));
-      });
       const [portrait, logo] = await Promise.all([
         loadShareImage(`images/${code}.png`),
         loadShareImage('images/v21/logo-book.png')
@@ -1325,19 +1321,19 @@
       ctx.lineWidth = 1;
       ctx.strokeRect(28, 28, 1024, 1024);
       ctx.drawImage(logo, 375, 38, 330, 110);
-      ctx.drawImage(portrait, 350, 190, 380, 380);
+      ctx.drawImage(portrait, 270, 174, 540, 540);
       ctx.strokeStyle = type.color;
       ctx.lineWidth = 3;
-      ctx.strokeRect(350, 190, 380, 380);
+      ctx.strokeRect(270, 174, 540, 540);
       ctx.textAlign = 'center';
       ctx.textBaseline = 'alphabetic';
       ctx.fillStyle = '#302b49';
       ctx.font = '24px "Hiragino Sans", "Hiragino Kaku Gothic ProN", sans-serif';
-      ctx.fillText(`${family.name}の家系 ・ ${type.emoji} ${type.motif}（${code}）`, 540, 610, 900);
+      ctx.fillText(`${family.name}の家系 ・ ${type.emoji} ${type.motif}（${code}）`, 540, 758, 900);
       ctx.font = '700 56px "Hiragino Mincho ProN", "Hiragino Mincho Pro", "YuMincho", "Yu Mincho", serif';
-      ctx.fillText(type.name, 540, 680, 900);
+      ctx.fillText(type.name, 540, 830, 900);
       ctx.fillStyle = type.color;
-      ctx.fillRect(480, 706, 120, 6);
+      ctx.fillRect(480, 856, 120, 6);
       ctx.font = '29px "Hiragino Sans", "Hiragino Kaku Gothic ProN", sans-serif';
       ctx.fillStyle = '#302b49';
       const catchLines = wrapShareLines(ctx, type.catch, 880);
@@ -1347,23 +1343,7 @@
         while (lastLine.length && ctx.measureText(lastLine.join('') + '…').width > 880) lastLine.pop();
         catchLines[2] = lastLine.join('') + '…';
       }
-      catchLines.forEach((line, index) => ctx.fillText(line, 540, 754 + index * 37, 880));
-      ctx.textAlign = 'left';
-      AXES.forEach((axis, index) => {
-        const y = 870 + index * 38;
-        const percent0 = percentages[index];
-        ctx.fillStyle = '#302b49';
-        ctx.font = '22px "Hiragino Sans", "Hiragino Kaku Gothic ProN", sans-serif';
-        ctx.fillText(axis.name, 100, y);
-        ctx.fillStyle = '#eeeeee';
-        ctx.fillRect(290, y - 14, 430, 12);
-        ctx.fillStyle = family.color;
-        ctx.fillRect(290, y - 14, 430 * percent0 / 100, 12);
-        ctx.fillStyle = '#302b49';
-        ctx.font = '24px "Hiragino Sans", "Hiragino Kaku Gothic ProN", sans-serif';
-        ctx.fillText(`${axis.poles[0]} ${percent0}% / ${axis.poles[1]} ${100 - percent0}%`, 750, y);
-      });
-      ctx.textAlign = 'center';
+      catchLines.forEach((line, index) => ctx.fillText(line, 540, 904 + index * 37, 880));
       ctx.font = '700 25px "Hiragino Sans", "Hiragino Kaku Gothic ProN", sans-serif';
       ctx.fillStyle = type.color;
       ctx.fillText('sakiyayoi.github.io/fairytale-type16/', 540, 1030);
