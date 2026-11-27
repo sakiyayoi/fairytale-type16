@@ -1,0 +1,4 @@
+# SEC20 (2026-11-27): internal docs live in sakiya-kb (private), never in this public repo
+CODEX_*_PROMPT.md
+*_BUILD_REPORT.md
+*_ROLLOUT_REPORT.md
